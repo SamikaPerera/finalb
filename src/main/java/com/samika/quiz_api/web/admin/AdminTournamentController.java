@@ -2,47 +2,64 @@ package com.samika.quiz_api.web.admin;
 
 import com.samika.quiz_api.domain.Tournament;
 import com.samika.quiz_api.repository.TournamentRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/tournaments")
+@RequiredArgsConstructor
 public class AdminTournamentController {
 
     private final TournamentRepository tournamentRepository;
 
-    public AdminTournamentController(TournamentRepository tournamentRepository) {
-        this.tournamentRepository = tournamentRepository;
-    }
-
     @GetMapping
-    public List<Tournament> getAll() {
+    public List<Tournament> list() {
         return tournamentRepository.findAll();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Tournament> get(@PathVariable Long id) {
+        return tournamentRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
-    public Tournament create(@RequestBody Tournament tournament) {
-        return tournamentRepository.save(tournament);
+    public ResponseEntity<Tournament> create(@RequestBody Tournament in) {
+        in.setId(null);
+        in.setCreatedAt(Instant.now());
+        Tournament saved = tournamentRepository.save(in);
+        return ResponseEntity.created(URI.create("/api/admin/tournaments/" + saved.getId())).body(saved);
     }
 
     @PutMapping("/{id}")
-    public Tournament update(@PathVariable Long id, @RequestBody Tournament updated) {
+    public ResponseEntity<Tournament> update(@PathVariable Long id, @RequestBody Tournament in) {
         return tournamentRepository.findById(id)
-                .map(t -> {
-                    t.setName(updated.getName());
-                    t.setCategory(updated.getCategory());
-                    t.setDifficulty(updated.getDifficulty());
-                    t.setStartDate(updated.getStartDate());
-                    t.setEndDate(updated.getEndDate());
-                    t.setMinPassingPercent(updated.getMinPassingPercent());
-                    return tournamentRepository.save(t);
+                .map(existing -> {
+                    existing.setName(in.getName());
+                    existing.setCategory(in.getCategory());
+                    existing.setDifficulty(in.getDifficulty());
+                    existing.setStartDate(in.getStartDate());
+                    existing.setEndDate(in.getEndDate());
+                    existing.setMinPassingPercent(in.getMinPassingPercent());
+                    existing.setArchived(in.getArchived());
+                    Tournament saved = tournamentRepository.save(existing);
+                    return ResponseEntity.ok(saved);
                 })
-                .orElseThrow(() -> new RuntimeException("Tournament not found"));
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        if (!tournamentRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
         tournamentRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

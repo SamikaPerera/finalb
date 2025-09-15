@@ -1,14 +1,19 @@
 package com.samika.quiz_api.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "tournament")
-@Data                       // <-- generates getters/setters/toString
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -18,25 +23,25 @@ public class Tournament {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotBlank
     private String name;
 
-    @Column(nullable = false)
+    @NotBlank
     private String category;
 
-    @Column(nullable = false)
+    @NotBlank
     private String difficulty;
+
+    @Min(0) @Max(100)
+    private Integer minPassingPercent;
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private Integer minPassingPercent;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
 
-    private Boolean archived;
+    private Instant createdAt;
 
-    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    private List<Question> questions = new ArrayList<>();
+    private Boolean archived = false;
+
+
 }
