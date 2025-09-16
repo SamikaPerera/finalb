@@ -3,7 +3,7 @@ package com.samika.quiz_api.service;
 import com.samika.quiz_api.domain.*;
 import com.samika.quiz_api.integration.opentdb.*;
 import com.samika.quiz_api.repository.*;
-import com.samika.quiz_api.web.dto.TournamentDtos;
+import com.samika.quiz_api.web.admin.dto.TournamentDtos;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;

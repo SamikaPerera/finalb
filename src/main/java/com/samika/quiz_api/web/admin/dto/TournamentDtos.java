@@ -1,4 +1,4 @@
-package com.samika.quiz_api.web.dto;
+package com.samika.quiz_api.web.admin.dto;
 
 import jakarta.validation.constraints.*;
 import java.time.*;
