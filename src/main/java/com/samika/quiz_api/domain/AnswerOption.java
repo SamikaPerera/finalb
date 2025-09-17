@@ -1,32 +1,30 @@
 package com.samika.quiz_api.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "answer_option")
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AnswerOption {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false, length = 500)
     private String text;
 
     @Column(nullable = false)
     private boolean correct;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id")
+    // Many options belong to one question
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "question_id", nullable = false)
+    @JsonIgnore                 // avoid infinite JSON loop when returning Question
     private Question question;
-
-    // getters/setters
-    public Long getId() { return id; }
-    public String getText() { return text; }
-    public void setText(String text) { this.text = text; }
-
-    public boolean isCorrect() { return correct; }
-    public void setCorrect(boolean correct) { this.correct = correct; }
-
-    public Question getQuestion() { return question; }
-    public void setQuestion(Question question) { this.question = question; }
 }
